@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || '';
@@ -38,6 +38,16 @@ function Checkout({ onSuccess, goBack }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  useEffect(() => {
+    // Ensure consistent session id header
+    let sid = localStorage.getItem('sid');
+    if (!sid) {
+      sid = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('sid', sid);
+    }
+    axios.defaults.headers.common['x-session-id'] = sid;
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

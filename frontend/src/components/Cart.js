@@ -10,6 +10,13 @@ function Cart({ updateCartCount, goToCheckout }) {
   const [removingItems, setRemovingItems] = useState({});
 
   useEffect(() => {
+    // Ensure consistent session id header
+    let sid = localStorage.getItem('sid');
+    if (!sid) {
+      sid = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('sid', sid);
+    }
+    axios.defaults.headers.common['x-session-id'] = sid;
     fetchCart();
   }, []);
 

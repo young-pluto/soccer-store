@@ -2,8 +2,9 @@ const express = require('express');
 const { db } = require('../database');
 const router = express.Router();
 
-// GET /api/cart - Get all cart items with product details and total
+// GET /api/cart - Get all cart items with product details and total (per user)
 router.get('/', (req, res) => {
+  const userId = req.userId || 'public';
   const query = `
     SELECT 
       cart.id as cartId,
@@ -15,9 +16,10 @@ router.get('/', (req, res) => {
       (cart.quantity * products.price) as subtotal
     FROM cart
     JOIN products ON cart.productId = products.id
+    WHERE cart.userId = ?
   `;
 
-  db.all(query, [], (err, rows) => {
+  db.all(query, [userId], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -31,8 +33,9 @@ router.get('/', (req, res) => {
   });
 });
 
-// POST /api/cart - Add item to cart
+// POST /api/cart - Add item to cart (per user)
 router.post('/', (req, res) => {
+  const userId = req.userId || 'public';
   const { productId, quantity = 1 } = req.body;
 
   if (!productId) {
@@ -49,7 +52,7 @@ router.post('/', (req, res) => {
     }
 
     // Check if item already in cart
-    db.get('SELECT * FROM cart WHERE productId = ?', [productId], (err, cartItem) => {
+    db.get('SELECT * FROM cart WHERE productId = ? AND userId = ?', [productId, userId], (err, cartItem) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
@@ -58,8 +61,8 @@ router.post('/', (req, res) => {
         // Update quantity
         const newQuantity = cartItem.quantity + quantity;
         db.run(
-          'UPDATE cart SET quantity = ? WHERE id = ?',
-          [newQuantity, cartItem.id],
+          'UPDATE cart SET quantity = ? WHERE id = ? AND userId = ?',
+          [newQuantity, cartItem.id, userId],
           function(err) {
             if (err) {
               return res.status(500).json({ error: err.message });
@@ -74,8 +77,8 @@ router.post('/', (req, res) => {
       } else {
         // Insert new item
         db.run(
-          'INSERT INTO cart (productId, quantity) VALUES (?, ?)',
-          [productId, quantity],
+          'INSERT INTO cart (productId, quantity, userId) VALUES (?, ?, ?)',
+          [productId, quantity, userId],
           function(err) {
             if (err) {
               return res.status(500).json({ error: err.message });
@@ -84,7 +87,8 @@ router.post('/', (req, res) => {
               message: 'Item added to cart',
               cartId: this.lastID,
               productId,
-              quantity
+              quantity,
+              userId
             });
           }
         );
@@ -93,11 +97,12 @@ router.post('/', (req, res) => {
   });
 });
 
-// DELETE /api/cart/:id - Remove item from cart
+// DELETE /api/cart/:id - Remove item from cart (per user)
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
+  const userId = req.userId || 'public';
 
-  db.run('DELETE FROM cart WHERE id = ?', [id], function(err) {
+  db.run('DELETE FROM cart WHERE id = ? AND userId = ?', [id, userId], function(err) {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -108,16 +113,17 @@ router.delete('/:id', (req, res) => {
   });
 });
 
-// PUT /api/cart/:id - Update cart item quantity
+// PUT /api/cart/:id - Update cart item quantity (per user)
 router.put('/:id', (req, res) => {
   const { id } = req.params;
   const { quantity } = req.body;
+  const userId = req.userId || 'public';
 
   if (!quantity || quantity < 1) {
     return res.status(400).json({ error: 'Valid quantity is required' });
   }
 
-  db.run('UPDATE cart SET quantity = ? WHERE id = ?', [quantity, id], function(err) {
+  db.run('UPDATE cart SET quantity = ? WHERE id = ? AND userId = ?', [quantity, id, userId], function(err) {
     if (err) {
       return res.status(500).json({ error: err.message });
     }

@@ -6,7 +6,7 @@ const db = new sqlite3.Database(dbPath);
 
 const initializeDatabase = () => {
   db.serialize(() => {
-    // Create products table
+    // Ensure userId support on cart table
     db.run(`
       CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,15 +17,22 @@ const initializeDatabase = () => {
       )
     `);
 
-    // Create cart table
     db.run(`
       CREATE TABLE IF NOT EXISTS cart (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         productId INTEGER NOT NULL,
         quantity INTEGER NOT NULL DEFAULT 1,
+        userId TEXT DEFAULT 'public',
         FOREIGN KEY (productId) REFERENCES products(id)
       )
     `);
+
+    // Backfill/alter: add userId column if missing (older DBs)
+    db.all(`PRAGMA table_info(cart)`, (err, columns) => {
+      if (!err && columns && !columns.find(c => c.name === 'userId')) {
+        db.run(`ALTER TABLE cart ADD COLUMN userId TEXT DEFAULT 'public'`);
+      }
+    });
 
     // Insert mock products (only if table is empty)
     db.get('SELECT COUNT(*) as count FROM products', (err, row) => {

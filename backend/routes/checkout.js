@@ -2,8 +2,9 @@ const express = require('express');
 const { db } = require('../database');
 const router = express.Router();
 
-// POST /api/checkout - Process checkout
+// POST /api/checkout - Process checkout (per user)
 router.post('/', (req, res) => {
+  const userId = req.userId || 'public';
   const { name, email } = req.body;
 
   if (!name || !email) {
@@ -21,9 +22,10 @@ router.post('/', (req, res) => {
       (cart.quantity * products.price) as subtotal
     FROM cart
     JOIN products ON cart.productId = products.id
+    WHERE cart.userId = ?
   `;
 
-  db.all(query, [], (err, cartItems) => {
+  db.all(query, [userId], (err, cartItems) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -53,8 +55,8 @@ router.post('/', (req, res) => {
       status: 'confirmed'
     };
 
-    // Clear cart after checkout
-    db.run('DELETE FROM cart', [], (err) => {
+  // Clear user's cart after checkout
+  db.run('DELETE FROM cart WHERE userId = ?', [userId], (err) => {
       if (err) {
         console.error('Error clearing cart:', err);
       }

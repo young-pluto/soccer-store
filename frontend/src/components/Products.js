@@ -11,6 +11,13 @@ function Products({ updateCartCount }) {
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
+    // Ensure a persistent session id header for all requests
+    let sid = localStorage.getItem('sid');
+    if (!sid) {
+      sid = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('sid', sid);
+    }
+    axios.defaults.headers.common['x-session-id'] = sid;
     fetchProducts();
     fetchCart();
   }, []);
