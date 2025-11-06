@@ -30,7 +30,7 @@ function App() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <h1 className="logo">⚽ Soccer Store</h1>
+          <h1 className="logo"> Soccer Store</h1>
           <nav className="nav">
             <button 
               className={currentPage === 'products' ? 'nav-btn active' : 'nav-btn'}
