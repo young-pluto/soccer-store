@@ -7,6 +7,7 @@ function Cart({ updateCartCount, goToCheckout }) {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [removingItems, setRemovingItems] = useState({});
 
   useEffect(() => {
     fetchCart();
@@ -26,11 +27,13 @@ function Cart({ updateCartCount, goToCheckout }) {
   };
 
   const removeFromCart = async (cartId) => {
+    setRemovingItems({ ...removingItems, [cartId]: true });
     try {
       await axios.delete(`${API_URL}/api/cart/${cartId}`);
       fetchCart();
     } catch (err) {
       alert('Failed to remove item');
+      setRemovingItems({ ...removingItems, [cartId]: false });
     }
   };
 
@@ -106,8 +109,9 @@ function Cart({ updateCartCount, goToCheckout }) {
               <button 
                 className="btn btn-danger"
                 onClick={() => removeFromCart(item.cartId)}
+                disabled={removingItems[item.cartId]}
               >
-                Remove
+                {removingItems[item.cartId] ? 'Removing...' : 'Remove'}
               </button>
             </div>
           </div>
