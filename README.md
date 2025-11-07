@@ -26,7 +26,7 @@ Note: The backend is hosted on Render’s free tier. If the site has been inacti
 
 ## 🚀 Features
 
-- ✅ Browse 10 mock products with images and descriptions
+- ✅ Browse 20 mock products with images and descriptions
 - ✅ Add products to cart with quantity management
 - ✅ Update and remove cart items
 - ✅ Real-time cart total calculation
