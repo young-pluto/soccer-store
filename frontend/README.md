@@ -1,4 +1,4 @@
-# Vibe Commerce - Full Stack Shopping Cart
+# Soccer Store - Mock E-commerce Shopping Cart
 
 A complete e-commerce shopping cart application built with React, Node.js, Express, and SQLite.
 
