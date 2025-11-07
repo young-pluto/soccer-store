@@ -3,7 +3,10 @@
 A complete e-commerce shopping cart application built with React, Node.js, Express, and SQLite.
 
 ## 🎥 Demo Video
-[Add your Loom/YouTube link here]
+https://youtu.be/WEfLzP6teJs
+
+## project link
+https://soccer-store-gold.vercel.app
 
 ## 📸 Screenshots
 
