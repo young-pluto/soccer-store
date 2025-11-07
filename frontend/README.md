@@ -8,6 +8,8 @@ https://youtu.be/WEfLzP6teJs
 ## project link
 https://soccer-store-gold.vercel.app
 
+Note: The backend is hosted on Render’s free tier. If the site has been inactive for a while, the server may take 30–60 seconds to wake up before products load. This behavior is normal for the free hosting plan and does not affect the functioning of the application once the instance is active.
+
 ## 📸 Screenshots
 
 ### Products Page

@@ -9,6 +9,7 @@ function Products({ updateCartCount }) {
   const [error, setError] = useState(null);
   const [addingToCart, setAddingToCart] = useState({});
   const [cartItems, setCartItems] = useState([]);
+  const [showSlowLoadNote, setShowSlowLoadNote] = useState(false);
 
   useEffect(() => {
     // Ensure a persistent session id header for all requests
@@ -21,6 +22,16 @@ function Products({ updateCartCount }) {
     fetchProducts();
     fetchCart();
   }, []);
+
+  // Show a gentle note if loading takes longer than 2s
+  useEffect(() => {
+    if (!loading) {
+      setShowSlowLoadNote(false);
+      return;
+    }
+    const id = setTimeout(() => setShowSlowLoadNote(true), 2000);
+    return () => clearTimeout(id);
+  }, [loading]);
 
   const fetchProducts = async () => {
     try {
@@ -63,7 +74,16 @@ function Products({ updateCartCount }) {
   };
 
   if (loading) {
-    return <div className="loading">Loading products...</div>;
+    return (
+      <div className="loading">
+        Loading products...
+        {showSlowLoadNote && (
+          <div className="loading-note">
+            If the site has been inactive for a while, the server may take 30–60 seconds to wake up before products load.
+          </div>
+        )}
+      </div>
+    );
   }
 
   if (error) {
